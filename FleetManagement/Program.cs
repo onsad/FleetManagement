@@ -1,5 +1,5 @@
 using FleetManagement.AppDbContext;
-using FleetManagement.Entity;
+using FleetManagement.Service;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,6 +9,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<FleetManagementDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("Default"))
     .UseSeeding((dbContext, _) => DbSeed.SeedVehicles(dbContext)));
+
+builder.Services.AddScoped<VehicleService>();
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
