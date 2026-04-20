@@ -17,6 +17,16 @@ namespace FleetManagement.AppDbContext
             modelBuilder.Entity<Vehicle>()
                 .HasIndex(v => v.LicensePlate)
                 .IsUnique();
+
+            modelBuilder.Entity<Trip>()
+                .HasOne(t => t.Vehicle)
+                .WithMany(v => v.Trips)
+                .HasForeignKey(t => t.VehicleId);
+
+            modelBuilder.Entity<Trip>()
+                .HasOne(t => t.Driver)
+                .WithMany(d => d.Trips)
+                .HasForeignKey(t => t.DriverId);
         }
     }
 }

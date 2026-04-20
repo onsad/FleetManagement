@@ -1,6 +1,7 @@
 ﻿using FleetManagement.Entity;
 using FleetManagement.Model;
 using FleetManagement.Service;
+using FleetManagement.Shared;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FleetManagement.Controllers
@@ -10,11 +11,11 @@ namespace FleetManagement.Controllers
     public class VehicleController(VehicleService vehicleService) : ControllerBase
     {
         [HttpGet]
-        public async Task<IEnumerable<VehicleDto>> Get()
+        public async Task<IActionResult> Get()
         {
             var result = await vehicleService.GetAll();
 
-            return result.Select(v => new VehicleDto
+            var data =  result.Data!.Select(v => new VehicleDto
             {
                 Id = v.Id,
                 Brand = v.Brand,
@@ -22,6 +23,8 @@ namespace FleetManagement.Controllers
                 Year = v.Year,
                 LicensePlate = v.LicensePlate
             });
+
+            return (Ok(ApiResponse<IEnumerable<VehicleDto>>.Success(data)));
         }
 
         [HttpPost]
@@ -35,18 +38,23 @@ namespace FleetManagement.Controllers
                 LicensePlate = dto.LicensePlate
             };
 
-            var created = await vehicleService.Create(vehicle);
+            var result = await vehicleService.Create(vehicle);
 
-            var result = new VehicleDto
+            if (!result.IsSuccess)
             {
-                Id = created.Id,
-                Brand = created.Brand,
-                Model = created.Model,
-                Year = created.Year,
-                LicensePlate = created.LicensePlate
+                return BadRequest(ApiResponse<object>.Failure(result.Error!));
+            }
+
+            var response = new VehicleDto
+            {
+                Id = result.Data!.Id,
+                Brand = result.Data.Brand,
+                Model = result.Data.Model,
+                Year = result.Data.Year,
+                LicensePlate = result.Data.LicensePlate
             };
 
-            return Ok(result);
+            return Ok(ApiResponse<VehicleDto>.Success(response));
         }
     }
 }
